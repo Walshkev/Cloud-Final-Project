@@ -3,6 +3,7 @@ const express = require("express");
 const logger = require("morgan");
 const { connectDb } = require("./lib/mongo");
 const { connectRedis } = require("./lib/redis");
+const { authenticate } = require("./middleware/auth");
 
 const port = process.env.PORT;
 const app = express();
@@ -15,4 +16,5 @@ connectDb()
 
 app.use(logger("dev"));
 app.use(express.json());
+app.use(authenticate);
 app.use("/", require("./routes/index"));

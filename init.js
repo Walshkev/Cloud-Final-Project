@@ -24,6 +24,16 @@ const main = async () => {
         roles: [{ role: "readWrite", db: database }]
     });
 
+    console.log("Creating initial admin user account for Tarpaulin API:");
+    console.log("   email: admin@example.com");
+    console.log("   password: password");
+    await db.collection("users").insertOne({
+        name: "Admin",
+        email: "admin@example.com",
+        password: "$2b$10$AzUIr8b8GP5dPCYFLDu0p.kZsQP1RiEJDMOHCt6SSL12fVJVQ.XM2",
+        role: "admin"
+    });
+
     client.close();
     console.log("Initialization done.");
 };
