@@ -1,6 +1,7 @@
 const { Course } = require("../models/course")
 const { User } = require("../models/user")
 const { paginate } = require("../lib/utils");
+const { Roles } = require("../models/roles");
 
 //below code has been adapted from user.js and Alex's project 8 code.
 
@@ -70,7 +71,31 @@ const getCourse = async (req, res) => {
     }
 };
 
-const updateCourse = (req, res) => {
+//TODOs left
+const updateCourse = async (req, res, next) => {
+    try{
+        const courseId = req.params.courseId;
+        const course = await Course.findById(courseId);
+
+        //TODO allow the teacher of a course to update the course as well
+        if (!req.user || req.user.role != Roles.Admin) {
+            return res.status(403)
+                .json({ error: "Only admins or the teacher of a course may update a new course" });
+        }
+        
+        const { subject, number, title, term, instructorId } = req.params
+        if (!subject && !number && !title && !term && !instructorId) {
+            res.status(400)
+                .json({"error": "Request did not contain a valid course object"})
+        }
+
+        let updateJSON = {_id: courseId}
+        const { matchedCount } = await Business.updateOne({ _id: businessId, userId: userId }, req.body);
+
+    } catch (err) {
+        res.status(400)
+            .json({"error": "Request did not contain a valid course object"})
+    }
 
 };
 
