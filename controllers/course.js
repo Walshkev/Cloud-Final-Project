@@ -76,42 +76,45 @@ const updateCourse = async (req, res, next) => {
     try{
         const courseId = req.params.courseId;
         const course = await Course.findById(courseId);
+        try{
+            //TODO allow the teacher of a course to update the course as well
+            if (!req.user || req.user.role != Roles.Admin) {
+                return res.status(403)
+                    .json({ error: "Only admins or the teacher of a course may update a new course" });
+            }
+            
+            const { subject, number, title, term, instructorId } = req.params
+            if (!subject && !number && !title && !term && !instructorId) {
+                res.status(400)
+                    .json({"error": "Request did not contain a valid course object"})
+            }
 
-        //TODO allow the teacher of a course to update the course as well
-        if (!req.user || req.user.role != Roles.Admin) {
-            return res.status(403)
-                .json({ error: "Only admins or the teacher of a course may update a new course" });
-        }
-        
-        const { subject, number, title, term, instructorId } = req.params
-        if (!subject && !number && !title && !term && !instructorId) {
+            let updateJSON = {
+                "subject": subject?? course.subject,
+                "number": number?? course.number,
+                "title": title?? course.title,
+                "term": term?? course.term,
+                "instructorId": instructorId?? course.instructorId
+            }
+            const { matchedCount } = await Course.updateOne({_id: courseId}, updateJSON)
+            if ( matchedCount>0 ){
+                res.json({
+                    "links": {
+                        "self": `/courses/${courseId}`
+                    }
+                });
+            } else{
+                next();
+            }
+
+        } catch (err) {
             res.status(400)
                 .json({"error": "Request did not contain a valid course object"})
         }
-
-        let updateJSON = {
-            "subject": subject?? course.subject,
-            "number": number?? course.number,
-            "title": title?? course.title,
-            "term": term?? course.term,
-            "instructorId": instructorId?? course.instructorId
-        }
-        const { matchedCount } = await Course.updateOne({_id: courseId}, updateJSON)
-        if ( matchedCount>0 ){
-            res.json({
-                "links": {
-                    "self": `/courses/${courseId}`
-                }
-            });
-        } else{
-            next();
-        }
-
-    } catch (err) {
-        res.status(400)
-            .json({"error": "Request did not contain a valid course object"})
+    } catch {
+        res.status(404)
+            .json({"error": "Course not found"})
     }
-
 };
 
 
