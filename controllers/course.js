@@ -1,5 +1,5 @@
 const { Course } = require("../models/course")
-const { User } = require("../models/user")
+// const { User } = require("../models/user")
 const { paginate } = require("../lib/utils");
 const { Roles } = require("../models/roles");
 
@@ -71,14 +71,13 @@ const getCourse = async (req, res) => {
     }
 };
 
-//TODOs left
+//done needs testing
 const updateCourse = async (req, res, next) => {
     try{
         const courseId = req.params.courseId;
         const course = await Course.findById(courseId);
         try{
-            //TODO allow the teacher of a course to update the course as well
-            if (!req.user || req.user.role != Roles.Admin) {
+            if (!req.user || (req.user.role != Roles.Admin && req.user.id != course.instructorId) ) {
                 return res.status(403)
                     .json({ error: "Only admins or the teacher of a course may update a new course" });
             }
@@ -135,14 +134,17 @@ const deleteCourse = async (req, res) => {
     }
 };
 
+//TODO update schema?
 const addStudent = (req, res) => {
 
 };
 
+//TODO
 const getStudents = (req, res) => {
 
 };
 
+//TODO
 const downloadRoster = (req, res) => {
 
 };

@@ -5,7 +5,8 @@ const courseSchema = mongoose.Schema({
     number: { type: String, required: true },
     title: { type: String, required: true },
     term: { type: String, required: true },
-    instructorId: { type: mongoose.Types.ObjectId, required: true }
+    instructorId: { type: mongoose.Types.ObjectId, required: true },
+    students: [{type: String, ref: "User"}]
 });
 
 module.exports.Course = mongoose.model("Course", courseSchema);
