@@ -134,14 +134,38 @@ const deleteCourse = async (req, res) => {
     }
 };
 
-//TODO update schema?
-const addStudent = (req, res) => {
+//done needs testing
+const addStudent = async (req, res) => {
+    try{
+        const courseId = req.params.courseId;
+        const course = await Course.findById(courseId);
+        try{
+            if (!req.user || (req.user.role != Roles.Admin && req.user.id != course.instructorId) ) {
+                return res.status(403)
+                    .json({ error: "Only admins or the teacher of a course may update a new course" });
+            }
 
+            const { add, remove } = req.body;
+
+            if(add.length>0 || remove.length>0){
+                //got help from chatgpt with the $in and $each syntax
+                await Course.updateOne({_id: course.courseId}, { $push: {$each: add}, $pull: {$in: remove}})
+            }
+            
+        }  catch (err) {
+            res.status(400)
+                .json({"error": "Request did not contain valid enrollment syntax"})
+        }
+    }
+    catch {
+        res.status(404)
+            .json({"error": "Course not found"})
+    }
 };
 
 //TODO
-const getStudents = (req, res) => {
-
+const getStudents = async (req, res) => {
+    
 };
 
 //TODO
