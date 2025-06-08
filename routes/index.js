@@ -1,9 +1,20 @@
-var express = require('express');
-var router = express.Router();
+const express = require("express");
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+const router = express.Router();
+router.use("/users", require("./users"));
+router.use("/courses", require("./courses"));
+router.use("/assignments", require("./assignments"));
+
+router.use((req, res) => {
+  res.status(404)
+    .json({ error: `Resource at ${req.originalUrl} not found.` })
+});
+
+router.use((err, req, res) => {
+  console.error(`== Error: ${err}`);
+
+  res.status(500)
+    .json({ error: "Internal server error. Please try again later." })
 });
 
 module.exports = router;

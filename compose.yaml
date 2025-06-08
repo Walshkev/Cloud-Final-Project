@@ -1,0 +1,47 @@
+services:
+    mongo-server:
+        image: mongo
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
+            - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
+        command: mongod --quiet --logpath /dev/null
+        healthcheck:
+            test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+            interval: 5s
+            timeout: 2s
+            retries: 5
+
+    redis-server:
+        image: redis
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 5s
+            timeout: 2s
+            retries: 5
+
+    init-mongo:
+        build: .
+        image: tarpaulin-api
+        working_dir: /usr/share
+        environment:
+            - MONGO_HOST=mongo-server
+        command: npm run setup
+        restart: no
+        depends_on:
+            mongo-server:
+                condition: service_healthy
+
+    tarpaulin-server:
+        build: .
+        image: tarpaulin-api
+        ports:
+            - ${PORT}:${PORT}
+        environment:
+            - PORT=${PORT}
+            - MONGO_HOST=mongo-server
+            - REDIS_HOST=redis-server
+        depends_on:
+            init-mongo:
+                condition: service_completed_successfully
+            redis-server:
+                condition: service_healthy
