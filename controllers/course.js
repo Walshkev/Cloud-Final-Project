@@ -1,5 +1,5 @@
 const { Course } = require("../models/course")
-// const { User } = require("../models/user")
+const { User } = require("../models/user")
 const { paginate } = require("../lib/utils");
 const { Roles } = require("../models/roles");
 
@@ -154,7 +154,7 @@ const addStudent = async (req, res) => {
             
         }  catch (err) {
             res.status(400)
-                .json({"error": "Request did not contain valid enrollment syntax"})
+                .json({"error": "Request did not contain valid enrollment syntax. Include an add array and a remove array."})
         }
     }
     catch {
@@ -163,14 +163,33 @@ const addStudent = async (req, res) => {
     }
 };
 
-//TODO
+//done needs testing might need to be updated to only give userIds
 const getStudents = async (req, res) => {
-    
+    const course = await Course.findOne({_id: req.params.courseId}).populate("students")
+    if(course){
+        res.json(course.students);
+    } else{
+        next();
+    }
 };
 
-//TODO
-const downloadRoster = (req, res) => {
-
+//done needs testing
+const downloadRoster = async (req, res) => {
+    const course = await Course.findOne({_id: req.params.courseId}).populate("students")
+    if(course){
+        const students = course.students;
+        //adapted from https://dev.to/writech/returning-csv-content-from-an-api-in-nodejs-33f3 on 6/8/25
+        let csv = "id,name,email"+ "\r\n";
+        for (let i = 0; i<students.length; i++){
+            csv+=`${students[i]._id},${students[i].name},${students[i].email}\r\n`;
+        }
+        res.set({
+            "Content-Type": "text/csv",
+            "Content-Disposition": `attachment; filename="users.csv"`,
+        }).send(csv);
+    } else{
+        next();
+    }
 };
 
 module.exports = {
