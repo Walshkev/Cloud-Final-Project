@@ -89,8 +89,23 @@ const updateCourse = async (req, res, next) => {
                 .json({"error": "Request did not contain a valid course object"})
         }
 
-        let updateJSON = {_id: courseId}
-        const { matchedCount } = await Business.updateOne({ _id: businessId, userId: userId }, req.body);
+        let updateJSON = {
+            "subject": subject?? course.subject,
+            "number": number?? course.number,
+            "title": title?? course.title,
+            "term": term?? course.term,
+            "instructorId": instructorId?? course.instructorId
+        }
+        const { matchedCount } = await Course.updateOne({_id: courseId}, updateJSON)
+        if ( matchedCount>0 ){
+            res.json({
+                "links": {
+                    "self": `/courses/${courseId}`
+                }
+            });
+        } else{
+            next();
+        }
 
     } catch (err) {
         res.status(400)
