@@ -62,6 +62,13 @@ STUDENT_ROLE=$(echo "$CREATE_STUDENT_RESPONSE" | jq -r '.role')
 echo "Student ID: $STUDENT_ID"
 echo "Student Role: $STUDENT_ROLE"
 
+# # 5 Delete student (teardown)
+# print_section "5 Delete Student"
+# DELETE_STUDENT_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE "$BASE_URL/users/$STUDENT_ID" \
+#   -H "Authorization: Bearer $ADMIN_TOKEN")
+
+# echo "Delete student status: $DELETE_STUDENT_RESPONSE"
+
 # 6. Create course (as admin, assign instructor)
 print_section "6 Create Course"
 

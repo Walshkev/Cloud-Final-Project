@@ -1,6 +1,7 @@
 const { Course } = require("../models/course");
 const { paginate } = require("../lib/utils");
 const { Roles } = require("../models/roles");
+const mongoose = require("mongoose");
 
 //below code has been adapted from user.js and Alex's project 8 code.
 
@@ -10,6 +11,11 @@ const createCourse = async (req, res, next) => {
   try {
     const { subject, number, title, term, instructorId } = req.body;
 
+    if (!req.user || req.user.role != Roles.Admin) {
+      return res
+        .status(403)
+        .json({ error: "Only admins may create a new course" });
+    }
     if (!req.user || req.user.role != Roles.Admin) {
       return res
         .status(403)
@@ -44,6 +50,7 @@ const createCourse = async (req, res, next) => {
   }
 };
 
+//bugs shoed up when testing
 const getCourses = async (req, res, next) => {
   const page = parseInt(req.query.page() || 1);
 
@@ -51,6 +58,11 @@ const getCourses = async (req, res, next) => {
 
   const pagedCourses = paginate(courses, page, pageSize);
 
+  if (pagedCourses.length > 0) {
+    return res.json(pagedCourses);
+  } else {
+    next();
+  }
   if (pagedCourses.length > 0) {
     return res.json(pagedCourses);
   } else {
@@ -126,6 +138,9 @@ const deleteCourse = async (req, res) => {
   if (!req.user || req.user.role != Roles.Admin) {
     return res.status(403).json({ error: "Only admins may delete a course" });
   }
+  if (!req.user || req.user.role != Roles.Admin) {
+    return res.status(403).json({ error: "Only admins may delete a course" });
+  }
 
   const { deletedCount } = await Course.deleteOne({ _id: req.params.courseId });
   // TODO: cascade deletions?
@@ -142,7 +157,6 @@ const addStudent = async (req, res) => {
   try {
     const courseId = req.params.courseId;
     const course = await Course.findById(courseId);
-
     if (!course) {
       return res.status(404).json({ error: "Course not found" });
     }
@@ -150,12 +164,9 @@ const addStudent = async (req, res) => {
       !req.user ||
       (req.user.role != Roles.Admin && req.user.id != course.instructorId)
     ) {
-      return res
-        .status(403)
-        .json({
-          error:
-            "Only admins or the teacher of a course may update a new course",
-        });
+      return res.status(403).json({
+        error: "Only admins or the teacher of a course may update a new course",
+      });
     }
 
     const { add, remove } = req.body;
@@ -195,28 +206,29 @@ const addStudent = async (req, res) => {
 };
 
 //done needs testing might need to be updated to only give userIds
-const getStudents = async (req, res) => {
-  const course = await Course.findOne({ _id: req.params.courseId }).populate(
-    "students"
-  );
+const getStudents = async (req, res, next) => {
+  const course = await Course.findOne({ _id: req.params.courseId });
   if (course) {
-    res.json(course.students);
+    const users = await Promise.all(course.students.map(id => User.findById(id)));
+    res.json(users.filter(Boolean));
   } else {
     next();
   }
 };
 
+
 //done needs testing
-const downloadRoster = async (req, res) => {
-  const course = await Course.findOne({ _id: req.params.courseId }).populate(
-    "students"
-  );
+
+const downloadRoster = async (req, res, next) => {
+  const course = await Course.findOne({ _id: req.params.courseId });
   if (course) {
-    const students = course.students;
-    //adapted from https://dev.to/writech/returning-csv-content-from-an-api-in-nodejs-33f3 on 6/8/25
-    let csv = "id,name,email" + "\r\n";
-    for (let i = 0; i < students.length; i++) {
-      csv += `${students[i]._id},${students[i].name},${students[i].email}\r\n`;
+    let csv = "id,name,email\r\n";
+    for (const studentId of course.students) {
+      const user = await User.findById(studentId);
+      if (!user) continue;
+      
+      console.log(user);
+      csv += `${user._id},${user.name},${user.email}\r\n`;
     }
     res
       .set({
