@@ -5,6 +5,8 @@ const { Roles } = require("../models/roles")
 const { Submission } = require("../models/submission")
 const { paginate } = require("../lib/utils")
 
+const pageSize = 10;
+
 //TODO
 const createSubmission = (req, res) => {
     try{
@@ -19,6 +21,7 @@ const createSubmission = (req, res) => {
     }
 };
 
+//done needs testing
 const getSubmissions = async (req, res) => {
     try{
         const assignmentId = req.params.assignmentId
@@ -30,7 +33,16 @@ const getSubmissions = async (req, res) => {
                     .json({ error: "Only admins or the teacher of a course may update a new course" });
             }
 
+            const page = parseInt(req.query.page() || 1);
 
+            const submissions = await Submissions.find({assignmentId: assignmentId});
+            const pagedSubmissions = paginate(getCourses, page, pageSize);
+
+            if(pagedSubmissions.length>0){
+                return res.json(pagedSubmissions);
+            } else {
+                next();
+            }
 
         } catch (err) {
             res.status(400)
