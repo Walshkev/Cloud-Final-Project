@@ -191,6 +191,8 @@ echo "Delete course status: $DELETE_COURSE_RESPONSE"
 echo
 
 
+
+
 $COURSE_STATUS"
 echo "Course ID: $COURSE_ID"
 
