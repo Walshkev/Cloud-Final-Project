@@ -1,3 +1,4 @@
 node_modules/
 .env
 kevinsTests.sh
+admin.token
