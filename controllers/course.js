@@ -1,5 +1,4 @@
 const { Course } = require("../models/course")
-const { User } = require("../models/user")
 const { paginate } = require("../lib/utils");
 const { Roles } = require("../models/roles");
 

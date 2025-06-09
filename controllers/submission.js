@@ -1,3 +1,6 @@
+//adapted from course.js
+const { Submission } = require("../models/submission")
+
 const createSubmission = (req, res) => {
 
 };
