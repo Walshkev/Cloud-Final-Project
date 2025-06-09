@@ -62,13 +62,6 @@ STUDENT_ROLE=$(echo "$CREATE_STUDENT_RESPONSE" | jq -r '.role')
 echo "Student ID: $STUDENT_ID"
 echo "Student Role: $STUDENT_ROLE"
 
-# # 5 Delete student (teardown)
-# print_section "5 Delete Student"
-# DELETE_STUDENT_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE "$BASE_URL/users/$STUDENT_ID" \
-#   -H "Authorization: Bearer $ADMIN_TOKEN")
-
-# echo "Delete student status: $DELETE_STUDENT_RESPONSE"
-
 # 6. Create course (as admin, assign instructor)
 print_section "6 Create Course"
 
@@ -114,7 +107,7 @@ echo "Update course response:"
 echo "$UPDATE_COURSE_RESPONSE"
 echo
 
-# 10 reget course by ID
+# 10. Get course by ID again
 print_section "10 Get Course By ID"
 GET_COURSE_RESPONSE=$(curl -s -X GET "$BASE_URL/courses/$COURSE_ID" \
   -H "Authorization: Bearer $ADMIN_TOKEN")
@@ -122,7 +115,6 @@ GET_COURSE_RESPONSE=$(curl -s -X GET "$BASE_URL/courses/$COURSE_ID" \
 echo "Get course by ID response:"
 echo "$GET_COURSE_RESPONSE"
 echo
-
 
 # 11. Add a student to the course
 print_section "11 Add Student"
@@ -141,16 +133,13 @@ else
 fi
 echo
 
-#12 Get students in course
-print_section "13 Get Students in Course"
+# 12. Get students in course
+print_section "12 Get Students in Course"
 GET_STUDENTS_RESPONSE=$(curl -s -X GET "$BASE_URL/courses/$COURSE_ID/students" \
     -H "Authorization: Bearer $ADMIN_TOKEN")
 echo "Get students in course response:"
 echo "$GET_STUDENTS_RESPONSE"
 echo
-
-
-
 
 # 13. Download course roster as CSV
 print_section "13 Download Roster"
@@ -161,7 +150,6 @@ ROSTER_RESPONSE=$(curl -s -X GET "$BASE_URL/courses/$COURSE_ID/roster" \
 echo "Roster CSV response:"
 echo "$ROSTER_RESPONSE"
 echo
-
 
 # 14. Remove a student from the course
 print_section "14 Remove Student"
@@ -174,7 +162,7 @@ echo "Remove student response:"
 echo "$REMOVE_RESPONSE"
 echo
 
-#15 Get students in course
+# 15. Get students in course
 print_section "15 Get Students in Course"
 GET_STUDENTS_RESPONSE=$(curl -s -X GET "$BASE_URL/courses/$COURSE_ID/students" \
     -H "Authorization: Bearer $ADMIN_TOKEN")
@@ -190,15 +178,4 @@ DELETE_COURSE_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE "$BASE
 echo "Delete course status: $DELETE_COURSE_RESPONSE"
 echo
 
-
-
-
-$COURSE_STATUS"
-echo "Course ID: $COURSE_ID"
-
-
-
-
-
-
-echo
+echo "All done."
