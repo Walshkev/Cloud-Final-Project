@@ -2,6 +2,7 @@ const { Course } = require("../models/course");
 const { paginate } = require("../lib/utils");
 const { Roles } = require("../models/roles");
 const mongoose = require("mongoose");
+const { User } = require("../models/user");
 
 //below code has been adapted from user.js and Alex's project 8 code.
 
@@ -52,7 +53,7 @@ const createCourse = async (req, res, next) => {
 
 //bugs shoed up when testing
 const getCourses = async (req, res, next) => {
-  const page = parseInt(req.query.page() || 1);
+  const page = parseInt(req.query.page || 1);
 
   const courses = await Course.find({}).exec();
 
@@ -169,16 +170,7 @@ const addStudent = async (req, res) => {
       });
     }
 
-    const { add, remove } = req.body;
-
-    if (!Array.isArray(add) || !Array.isArray(remove)) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "Request did not contain valid enrollment syntax. Include an add array and a remove array.",
-        });
-    }
+    let { add, remove } = req.body;
 
     // Only update if there is something to add or remove
     if (add.length > 0) {
@@ -227,7 +219,7 @@ const downloadRoster = async (req, res, next) => {
       const user = await User.findById(studentId);
       if (!user) continue;
       
-      console.log(user);
+      
       csv += `${user._id},${user.name},${user.email}\r\n`;
     }
     res
