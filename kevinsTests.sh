@@ -231,25 +231,26 @@ echo "Get assignment by ID after update response:"
 echo "$GET_ASSIGNMENT_UPDATED_RESPONSE"
 echo
 
-# # 21. Create submission
-# print_section "21 Create Submission"
-# CREATE_SUBMISSION_RESPONSE=$(curl -s -X POST "$BASE_URL/assignments/$ASSIGNMENT_ID/submissions" \
-#   -H "Content-Type: application/json" \
-#   -H "Authorization: Bearer $ADMIN_TOKEN" \
-#   -d "{\"file\":\"testfile.txt\"}")
+# 21. Create submission
+print_section "21 Create Submission"
+FILE_CONTENT=$(<testData/test.txt)
+CREATE_SUBMISSION_RESPONSE=$(curl -s -X POST "$BASE_URL/assignments/$ASSIGNMENT_ID/submissions" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $STUDENT_TOKEN" \
+  -d "{\"file\":\"$FILE_CONTENT\"}")
 
-# echo "Create submission response:"
-# echo "$CREATE_SUBMISSION_RESPONSE"
-# echo
+echo "Create submission response:"
+echo "$CREATE_SUBMISSION_RESPONSE"
+echo
 
-# # 22. Get submissions for assignment (paginated)
-# print_section "22 Get Submissions For Assignment (Paginated)"
-# GET_SUBMISSIONS_RESPONSE=$(curl -s -X GET "$BASE_URL/assignments/$ASSIGNMENT_ID/submissions?page=1" \
-#   -H "Authorization: Bearer $ADMIN_TOKEN")
+# 22. Get submissions for assignment (paginated)
+print_section "22 Get Submissions For Assignment (Paginated)"
+GET_SUBMISSIONS_RESPONSE=$(curl -s -X GET "$BASE_URL/assignments/$ASSIGNMENT_ID/submissions?page=1" \
+  -H "Authorization: Bearer $ADMIN_TOKEN")
 
-# echo "Get submissions for assignment response:"
-# echo "$GET_SUBMISSIONS_RESPONSE"
-# echo
+echo "Get submissions for assignment response:"
+echo "$GET_SUBMISSIONS_RESPONSE"
+echo
 
 # 23. Delete assignment
 print_section "23 Delete Assignment"
