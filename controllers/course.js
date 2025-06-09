@@ -1,5 +1,4 @@
-const { Course } = require("../models/course");
-const { User } = require("../models/user");
+const { Course } = require("../models/course")
 const { paginate } = require("../lib/utils");
 const { Roles } = require("../models/roles");
 const mongoose = require("mongoose");
