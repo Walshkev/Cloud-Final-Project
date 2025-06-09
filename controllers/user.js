@@ -57,7 +57,11 @@ const login = async (req, res) => {
             { expiresIn: "24h" }
         );
 
-        res.json({ token });
+        res.json({ 
+            token,
+            id: user.id,
+         });
+
     } else {
         res.status(401)
             .json({ "error": "Invalid email or password" });
