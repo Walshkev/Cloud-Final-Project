@@ -1,12 +1,46 @@
 //adapted from course.js
+const { Course } = require("../models/course")
+const { Assignment } = require("../models/assignment")
+const { Roles } = require("../models/roles")
 const { Submission } = require("../models/submission")
+const { paginate } = require("../lib/utils")
 
+//TODO
 const createSubmission = (req, res) => {
-
+    try{
+        const { file } = req.body;
+        if (!req.user || req.user.role != Roles.Admin) {
+            return res.status(403)
+                .json({ error: "You may only submit assignments to classes you are enrolled in" });
+        }
+    } catch (err) {
+        res.status(400)
+            .json({"error": "Request did not contain a valid assignment object"})
+    }
 };
 
-const getSubmissions = (req, res) => {
+const getSubmissions = async (req, res) => {
+    try{
+        const assignmentId = req.params.assignmentId
+        const assignment = await Assignment.findById(assignmentId);
+        const course = await Course.findById(assignment.courseId)
+        try {
+            if (!req.user || (req.user.role != Roles.Admin && req.user.id != course.instructorId)) {
+                return res.status(403)
+                    .json({ error: "Only admins or the teacher of a course may update a new course" });
+            }
 
+
+
+        } catch (err) {
+            res.status(400)
+                .json({ "error": "Request did not contain valid enrollment syntax. Include an add array and a remove array." })
+        }
+    }
+    catch {
+        res.status(404)
+            .json({"error": "Assignment not found"})
+    }
 };
 
 module.exports = {
