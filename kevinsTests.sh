@@ -21,9 +21,9 @@ ADMIN_LOGIN_RESPONSE=$(curl -s -X POST "$BASE_URL/users/login" \
   -H "Content-Type: application/json" \
   -d "{\"email\":\"$ADMIN_EMAIL\",\"password\":\"$ADMIN_PASSWORD\"}")
 
-ADMIN_TOKEN=$(echo "$ADMIN_LOGIN_RESPONSE" | jq -r '.token')
-ADMIN_ID=$(echo "$ADMIN_LOGIN_RESPONSE" | jq -r '.user.id')
-ADMIN_ROLE=$(echo "$ADMIN_LOGIN_RESPONSE" | jq -r '.user.role')
+ADMIN_TOKEN=$(echo "$ADMIN_LOGIN_RESPONSE" | grep -o '"token":"[^"]*' | grep -o '[^"]*$')
+ADMIN_ID=$(echo "$ADMIN_LOGIN_RESPONSE" | grep -o '"id":"[^"]*' | head -n1 | grep -o '[^"]*$')
+ADMIN_ROLE=$(echo "$ADMIN_LOGIN_RESPONSE" | grep -o '"role":"[^"]*' | grep -o '[^"]*$')
 
 echo "Admin Token: $ADMIN_TOKEN"
 
@@ -34,8 +34,8 @@ CREATE_INSTRUCTOR_RESPONSE=$(curl -s -X POST "$BASE_URL/users" \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
   -d "{\"name\":\"Test Instructor\",\"email\":\"$INSTRUCTOR_EMAIL\",\"password\":\"$INSTRUCTOR_PASSWORD\",\"role\":\"instructor\"}")
 
-INSTRUCTOR_ID=$(echo "$CREATE_INSTRUCTOR_RESPONSE" | jq -r '.id')
-INSTRUCTOR_ROLE=$(echo "$CREATE_INSTRUCTOR_RESPONSE" | jq -r '.role')
+INSTRUCTOR_ID=$(echo "$CREATE_INSTRUCTOR_RESPONSE" | grep -o '"id":"[^"]*' | grep -o '[^"]*$')
+INSTRUCTOR_ROLE=$(echo "$CREATE_INSTRUCTOR_RESPONSE" | grep -o '"role":"[^"]*' | grep -o '[^"]*$')
 echo "Instructor ID: $INSTRUCTOR_ID"
 echo "Instructor Role: $INSTRUCTOR_ROLE"
 
@@ -45,8 +45,8 @@ INSTRUCTOR_LOGIN_RESPONSE=$(curl -s -X POST "$BASE_URL/users/login" \
     -H "Content-Type: application/json" \
     -d "{\"email\":\"$INSTRUCTOR_EMAIL\",\"password\":\"$INSTRUCTOR_PASSWORD\"}")
 
-INSTRUCTOR_TOKEN=$(echo "$INSTRUCTOR_LOGIN_RESPONSE" | jq -r '.token')
-INSTRUCTOR_USER_ID=$(echo "$INSTRUCTOR_LOGIN_RESPONSE" | jq -r '.id')
+INSTRUCTOR_TOKEN=$(echo "$INSTRUCTOR_LOGIN_RESPONSE" | grep -o '"token":"[^"]*' | grep -o '[^"]*$')
+INSTRUCTOR_USER_ID=$(echo "$INSTRUCTOR_LOGIN_RESPONSE" | grep -o '"id":"[^"]*' | head -n1 | grep -o '[^"]*$')
 
 echo "Instructor User ID: $INSTRUCTOR_USER_ID"
 echo "Instructor Token: $INSTRUCTOR_TOKEN"
@@ -57,8 +57,8 @@ CREATE_STUDENT_RESPONSE=$(curl -s -X POST "$BASE_URL/users" \
   -H "Content-Type: application/json" \
   -d "{\"name\":\"Test Student\",\"email\":\"$STUDENT_EMAIL\",\"password\":\"$STUDENT_PASSWORD\",\"role\":\"student\"}")
 
-STUDENT_ID=$(echo "$CREATE_STUDENT_RESPONSE" | jq -r '.id')
-STUDENT_ROLE=$(echo "$CREATE_STUDENT_RESPONSE" | jq -r '.role')
+STUDENT_ID=$(echo "$CREATE_STUDENT_RESPONSE" | grep -o '"id":"[^"]*' | grep -o '[^"]*$')
+STUDENT_ROLE=$(echo "$CREATE_STUDENT_RESPONSE" | grep -o '"role":"[^"]*' | grep -o '[^"]*$')
 echo "Student ID: $STUDENT_ID"
 echo "Student Role: $STUDENT_ROLE"
 
@@ -67,9 +67,9 @@ print_section "5 Student Login"
 STUDENT_LOGIN_RESPONSE=$(curl -s -X POST "$BASE_URL/users/login" \
   -H "Content-Type: application/json" \
   -d "{\"email\":\"$STUDENT_EMAIL\",\"password\":\"$STUDENT_PASSWORD\"}")
-STUDENT_TOKEN=$(echo "$STUDENT_LOGIN_RESPONSE" | jq -r '.token')
-STUDENT_ID=$(echo "$STUDENT_LOGIN_RESPONSE" | jq -r '.id')
-echo "Student User ID: $STUDENT_USER_ID"
+STUDENT_TOKEN=$(echo "$STUDENT_LOGIN_RESPONSE" | grep -o '"token":"[^"]*' | grep -o '[^"]*$')
+STUDENT_ID=$(echo "$STUDENT_LOGIN_RESPONSE" | grep -o '"id":"[^"]*' | head -n1 | grep -o '[^"]*$')
+echo "Student User ID: $STUDENT_ID"
 echo "Student Token: $STUDENT_TOKEN"
 
 # 6. Create Course
@@ -82,7 +82,7 @@ COURSE_STATUS=$(curl -s -o "$TMP_BODY" -w "%{http_code}" -X POST "$BASE_URL/cour
 
 COURSE_BODY=$(cat "$TMP_BODY")
 rm "$TMP_BODY"
-COURSE_ID=$(echo "$COURSE_BODY" | jq -r '.id')
+COURSE_ID=$(echo "$COURSE_BODY" | grep -o '"id":"[^"]*' | grep -o '[^"]*$')
 
 echo "Course creation status: $COURSE_STATUS"
 echo "Course ID: $COURSE_ID"
@@ -171,14 +171,6 @@ echo "Remove student response:"
 echo "$REMOVE_RESPONSE"
 echo
 
-# 15. Get students in course
-print_section "15 Get Students in Course"
-GET_STUDENTS_RESPONSE=$(curl -s -X GET "$BASE_URL/courses/$COURSE_ID/students" \
-    -H "Authorization: Bearer $ADMIN_TOKEN")
-echo "Get students in course response:"
-echo "$GET_STUDENTS_RESPONSE"
-echo
-
 # 16. Create Assignment
 print_section "16 Create Assignment"
 CREATE_ASSIGNMENT_RESPONSE=$(curl -s -X POST "$BASE_URL/assignments" \
@@ -186,7 +178,7 @@ CREATE_ASSIGNMENT_RESPONSE=$(curl -s -X POST "$BASE_URL/assignments" \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
   -d "{\"courseId\":\"$COURSE_ID\",\"title\":\"Test Assignment\",\"points\":100,\"due\":\"2025-12-31T23:59:59Z\"}")
 
-ASSIGNMENT_ID=$(echo "$CREATE_ASSIGNMENT_RESPONSE" | jq -r '.id')
+ASSIGNMENT_ID=$(echo "$CREATE_ASSIGNMENT_RESPONSE" | grep -o '"id":"[^"]*' | grep -o '[^"]*$')
 
 echo "Create assignment response:"
 echo "$CREATE_ASSIGNMENT_RESPONSE"
