@@ -25,6 +25,7 @@ services:
         working_dir: /usr/share
         environment:
             - MONGO_HOST=mongo-server
+            - REDIS_HOST=redis-server
         command: npm run setup
         restart: no
         depends_on:
