@@ -48,7 +48,7 @@ const createCourse = async (req, res, next) => {
 
 //bugs shoed up when testing
 const getCourses = async (req, res, next) => {
-  const page = parseInt(req.query.page() || 1);
+  const page = parseInt(req.query.page || 1);
 
   const courses = await Course.find({}).exec();
 
@@ -159,12 +159,6 @@ const addStudent = async (req, res) => {
     }
 
     let { add, remove } = req.body;
-    if (!Array.isArray(add) || !Array.isArray(remove)) {
-      return res.status(400).json({
-        error:
-          "Request did not contain valid enrollment syntax. Include an add array and a remove array.",
-      });
-    }
 
     // No conversion, just use the strings
     if (add.length > 0) {
@@ -214,7 +208,7 @@ const downloadRoster = async (req, res, next) => {
       const user = await User.findById(studentId);
       if (!user) continue;
       
-      console.log(user);
+      
       csv += `${user._id},${user.name},${user.email}\r\n`;
     }
     res
