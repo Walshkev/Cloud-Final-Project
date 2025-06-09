@@ -2,6 +2,7 @@ const { Course } = require("../models/course")
 const { paginate } = require("../lib/utils");
 const { Roles } = require("../models/roles");
 const mongoose = require("mongoose");
+const { User } = require("../models/user");
 
 //below code has been adapted from user.js and Alex's project 8 code.
 
