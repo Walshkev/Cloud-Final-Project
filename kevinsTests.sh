@@ -259,12 +259,12 @@ echo
 
 
 
-# # 5 Delete student (teardown)
-# print_section "5 Delete Student"
-# DELETE_STUDENT_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE "$BASE_URL/users/$STUDENT_ID" \
-#   -H "Authorization: Bearer $ADMIN_TOKEN")
+# 5 Delete student (teardown)
+print_section "5 Delete Student"
+DELETE_STUDENT_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE "$BASE_URL/users/$STUDENT_ID" \
+  -H "Authorization: Bearer $ADMIN_TOKEN")
 
-# echo "Delete student status: $DELETE_STUDENT_RESPONSE"
+echo "Delete student status: $DELETE_STUDENT_RESPONSE"
 
 
 
