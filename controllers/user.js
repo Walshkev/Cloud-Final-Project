@@ -68,13 +68,40 @@ const login = async (req, res) => {
     }
 };
 
+// Gets user data (can only be accessed by the user and admins)
 const getUser = async (req, res) => {
-    const user = await User.findById(req.params.userId);
+    try {
+        const userId = req.params.userId;
+        // check if the user is valid
+        if (req.user.userId !== userId && req.user.role !== Roles.Admin) {
+            return res.status(403).json({ error: "Only admins or the user themselves can view a user's data" });
+        }
 
-    if (user) {
-        res.json(user);
-    } else {
-        next();
+        const user = await User.findById(userId);
+        // check if user exists
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        // Get course data for students and instructors
+        let courseData = [];
+
+        if (user.role === Roles.Instructor) {
+            courseData = await Course.find({ instructorId: userId });
+        } else if (user.role === Roles.Student) {
+            courseData = await Course.find({ students: userId });
+        }
+
+        return res.json({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            courses: courseData
+        });
+
+    } catch (err) {
+        next(err)
     }
 };
 
