@@ -39,8 +39,8 @@ INSTRUCTOR_ROLE=$(echo "$CREATE_INSTRUCTOR_RESPONSE" | jq -r '.role')
 echo "Instructor ID: $INSTRUCTOR_ID"
 echo "Instructor Role: $INSTRUCTOR_ROLE"
 
-# 2b. Login as instructor
-print_section "2b Instructor Login"
+# 3. Login as instructor
+print_section "3 Instructor Login"
 INSTRUCTOR_LOGIN_RESPONSE=$(curl -s -X POST "$BASE_URL/users/login" \
     -H "Content-Type: application/json" \
     -d "{\"email\":\"$INSTRUCTOR_EMAIL\",\"password\":\"$INSTRUCTOR_PASSWORD\"}")
@@ -49,10 +49,10 @@ INSTRUCTOR_TOKEN=$(echo "$INSTRUCTOR_LOGIN_RESPONSE" | jq -r '.token')
 INSTRUCTOR_USER_ID=$(echo "$INSTRUCTOR_LOGIN_RESPONSE" | jq -r '.id')
 
 echo "Instructor User ID: $INSTRUCTOR_USER_ID"
-echo "Instructor Role (from login): $INSTRUCTOR_ROLE"
+echo "Instructor Token: $INSTRUCTOR_TOKEN"
 
-# 3. Create student
-print_section "3 Create Student"
+# 4. Create student
+print_section "4 Create Student"
 CREATE_STUDENT_RESPONSE=$(curl -s -X POST "$BASE_URL/users" \
   -H "Content-Type: application/json" \
   -d "{\"name\":\"Test Student\",\"email\":\"$STUDENT_EMAIL\",\"password\":\"$STUDENT_PASSWORD\",\"role\":\"student\"}")
@@ -62,8 +62,8 @@ STUDENT_ROLE=$(echo "$CREATE_STUDENT_RESPONSE" | jq -r '.role')
 echo "Student ID: $STUDENT_ID"
 echo "Student Role: $STUDENT_ROLE"
 
-# 4. Login as student
-print_section "4 Student Login"
+# 5. Login as student
+print_section "5 Student Login"
 STUDENT_LOGIN_RESPONSE=$(curl -s -X POST "$BASE_URL/users/login" \
   -H "Content-Type: application/json" \
   -d "{\"email\":\"$STUDENT_EMAIL\",\"password\":\"$STUDENT_PASSWORD\"}")
@@ -72,9 +72,8 @@ STUDENT_USER_ID=$(echo "$STUDENT_LOGIN_RESPONSE" | jq -r '.id')
 echo "Student User ID: $STUDENT_USER_ID"
 echo "Student Token: $STUDENT_TOKEN"
 
-
+# 6. Create Course
 print_section "6 Create Course"
-
 TMP_BODY=$(mktemp)
 COURSE_STATUS=$(curl -s -o "$TMP_BODY" -w "%{http_code}" -X POST "$BASE_URL/courses" \
   -H "Content-Type: application/json" \
@@ -180,15 +179,8 @@ echo "Get students in course response:"
 echo "$GET_STUDENTS_RESPONSE"
 echo
 
-# 16. Delete Course as Admin
-# print_section "16 Delete Course"
-# DELETE_COURSE_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE "$BASE_URL/courses/$COURSE_ID" \
-#   -H "Authorization: Bearer $ADMIN_TOKEN")
-
-# echo "Delete course status: $DELETE_COURSE_RESPONSE"
-# echo
-
-print_section "17 Create Assignment"
+# 16. Create Assignment
+print_section "16 Create Assignment"
 CREATE_ASSIGNMENT_RESPONSE=$(curl -s -X POST "$BASE_URL/assignments" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
@@ -201,9 +193,8 @@ echo "$CREATE_ASSIGNMENT_RESPONSE"
 echo "Assignment ID: $ASSIGNMENT_ID"
 echo
 
-
-# 18. Get assignment by ID
-print_section "18 Get Assignment By ID"
+# 17. Get assignment by ID
+print_section "17 Get Assignment By ID"
 GET_ASSIGNMENT_RESPONSE=$(curl -s -X GET "$BASE_URL/assignments/$ASSIGNMENT_ID" \
   -H "Authorization: Bearer $ADMIN_TOKEN")
 
@@ -211,9 +202,8 @@ echo "Get assignment by ID response:"
 echo "$GET_ASSIGNMENT_RESPONSE"
 echo
 
-
-# 19. Update assignment
-print_section "19 Get All Assignments For Course (Paginated)"
+# 18. Get all assignments for course (paginated)
+print_section "18 Get All Assignments For Course (Paginated)"
 GET_COURSE_ASSIGNMENTS_RESPONSE=$(curl -s -X GET "$BASE_URL/courses/$COURSE_ID/assignments?page=1" \
   -H "Authorization: Bearer $ADMIN_TOKEN")
 
@@ -221,8 +211,8 @@ echo "Get all assignments for course response:"
 echo "$GET_COURSE_ASSIGNMENTS_RESPONSE"
 echo
 
-# 20. Update assignment
-print_section "20 Update Assignment"
+# 19. Update assignment
+print_section "19 Update Assignment"
 UPDATE_ASSIGNMENT_RESPONSE=$(curl -s -X PATCH "$BASE_URL/assignments/$ASSIGNMENT_ID" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
@@ -232,8 +222,8 @@ echo "Update assignment response:"
 echo "$UPDATE_ASSIGNMENT_RESPONSE"
 echo
 
-# 21. Get assignment by ID after update
-print_section "21 Get Assignment By ID After Update"
+# 20. Get assignment by ID after update
+print_section "20 Get Assignment By ID After Update"
 GET_ASSIGNMENT_UPDATED_RESPONSE=$(curl -s -X GET "$BASE_URL/assignments/$ASSIGNMENT_ID" \
   -H "Authorization: Bearer $ADMIN_TOKEN")
 
@@ -241,47 +231,56 @@ echo "Get assignment by ID after update response:"
 echo "$GET_ASSIGNMENT_UPDATED_RESPONSE"
 echo
 
+# # 21. Create submission
+# print_section "21 Create Submission"
+# CREATE_SUBMISSION_RESPONSE=$(curl -s -X POST "$BASE_URL/assignments/$ASSIGNMENT_ID/submissions" \
+#   -H "Content-Type: application/json" \
+#   -H "Authorization: Bearer $ADMIN_TOKEN" \
+#   -d "{\"file\":\"testfile.txt\"}")
 
+# echo "Create submission response:"
+# echo "$CREATE_SUBMISSION_RESPONSE"
+# echo
 
-print_section "24 Create Submission"
-CREATE_SUBMISSION_RESPONSE=$(curl -s -X POST "$BASE_URL/assignments/$ASSIGNMENT_ID/submissions" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $ADMIN_TOKEN" \
-  -d "{\"file\":\"testfile.txt\"}")
+# # 22. Get submissions for assignment (paginated)
+# print_section "22 Get Submissions For Assignment (Paginated)"
+# GET_SUBMISSIONS_RESPONSE=$(curl -s -X GET "$BASE_URL/assignments/$ASSIGNMENT_ID/submissions?page=1" \
+#   -H "Authorization: Bearer $ADMIN_TOKEN")
 
-echo "Create submission response:"
-echo "$CREATE_SUBMISSION_RESPONSE"
-echo
+# echo "Get submissions for assignment response:"
+# echo "$GET_SUBMISSIONS_RESPONSE"
+# echo
 
-
-
-
-
-
-
-# 5 Delete student (teardown)
-print_section "5 Delete Student"
-DELETE_STUDENT_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE "$BASE_URL/users/$STUDENT_ID" \
-  -H "Authorization: Bearer $ADMIN_TOKEN")
-
-echo "Delete student status: $DELETE_STUDENT_RESPONSE"
-
-
-
-# 22. Delete assignment
-print_section "22 Delete Assignment"
+# 23. Delete assignment
+print_section "23 Delete Assignment"
 DELETE_ASSIGNMENT_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE "$BASE_URL/assignments/$ASSIGNMENT_ID" \
   -H "Authorization: Bearer $ADMIN_TOKEN")
 
 echo "Delete assignment status: $DELETE_ASSIGNMENT_RESPONSE"
 echo
 
-# 23. Try to get assignment by ID after delete (should 404)
-print_section "23 Get Assignment By ID After Delete"
+# 24. Try to get assignment by ID after delete (should 404)
+print_section "24 Get Assignment By ID After Delete"
 GET_ASSIGNMENT_AFTER_DELETE_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X GET "$BASE_URL/assignments/$ASSIGNMENT_ID" \
   -H "Authorization: Bearer $ADMIN_TOKEN")
 
 echo "Get assignment by ID after delete status: $GET_ASSIGNMENT_AFTER_DELETE_RESPONSE"
+echo
+
+# 25. Delete student (teardown)
+print_section "25 Delete Student"
+DELETE_STUDENT_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE "$BASE_URL/users/$STUDENT_ID" \
+  -H "Authorization: Bearer $ADMIN_TOKEN")
+
+echo "Delete student status: $DELETE_STUDENT_RESPONSE"
+echo
+
+# 26. Delete course (teardown)
+print_section "26 Delete Course"
+DELETE_COURSE_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE "$BASE_URL/courses/$COURSE_ID" \
+  -H "Authorization: Bearer $ADMIN_TOKEN")
+
+echo "Delete course status: $DELETE_COURSE_RESPONSE"
 echo
 
 echo "All done."
