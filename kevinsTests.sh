@@ -160,24 +160,24 @@ echo "Roster CSV response:"
 echo "$ROSTER_RESPONSE"
 echo
 
-# 14. Remove a student from the course
-print_section "14 Remove Student"
-REMOVE_RESPONSE=$(curl -s -X POST "$BASE_URL/courses/$COURSE_ID/students" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $ADMIN_TOKEN" \
-  -d "{\"add\": [], \"remove\": [\"$STUDENT_ID\"]}")
+# # 14. Remove a student from the course
+# print_section "14 Remove Student"
+# REMOVE_RESPONSE=$(curl -s -X POST "$BASE_URL/courses/$COURSE_ID/students" \
+#   -H "Content-Type: application/json" \
+#   -H "Authorization: Bearer $ADMIN_TOKEN" \
+#   -d "{\"add\": [], \"remove\": [\"$STUDENT_ID\"]}")
 
-echo "Remove student response:"
-echo "$REMOVE_RESPONSE"
-echo
-
-# # 15. Get students in course
-# print_section "15 Get Students in Course"
-# GET_STUDENTS_RESPONSE=$(curl -s -X GET "$BASE_URL/courses/$COURSE_ID/students" \
-#     -H "Authorization: Bearer $ADMIN_TOKEN")
-# echo "Get students in course response:"
-# echo "$GET_STUDENTS_RESPONSE"
+# echo "Remove student response:"
+# echo "$REMOVE_RESPONSE"
 # echo
+
+# 15. Get students in course
+print_section "15 Get Students in Course"
+GET_STUDENTS_RESPONSE=$(curl -s -X GET "$BASE_URL/courses/$COURSE_ID/students" \
+    -H "Authorization: Bearer $ADMIN_TOKEN")
+echo "Get students in course response:"
+echo "$GET_STUDENTS_RESPONSE"
+echo
 
 # 16. Create Assignment
 print_section "16 Create Assignment"
