@@ -17,15 +17,14 @@ const authenticate = async (req, res, next) => {
     next();
 };
 
-const hasRole = (role) => {
+const requireAnyRole = (roles) => {
     return (req, res, next) => {
         if (!req.user) {
             return res.sendStatus(401);
         }
 
-        const hasRequiredRole =
-            (role instanceof Array && req.user.role in role)
-            || req.user.role == role;
+        const possibleRoles = Array.isArray(roles) ? roles : [roles];
+        const hasRequiredRole = possibleRoles.includes(req.user.role);
 
         if (!hasRequiredRole) {
             return res.status(403)
@@ -38,5 +37,5 @@ const hasRole = (role) => {
 
 module.exports = {
     authenticate,
-    hasRole
+    requireAnyRole
 };

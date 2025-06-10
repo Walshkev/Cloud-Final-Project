@@ -160,27 +160,16 @@ echo "Roster CSV response:"
 echo "$ROSTER_RESPONSE"
 echo
 
-# 14. Remove a student from the course
-print_section "14 Remove Student"
-REMOVE_RESPONSE=$(curl -s -X POST "$BASE_URL/courses/$COURSE_ID/students" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $ADMIN_TOKEN" \
-  -d "{\"add\": [], \"remove\": [\"$STUDENT_ID\"]}")
-
-echo "Remove student response:"
-echo "$REMOVE_RESPONSE"
+# 14. Get students in course
+print_section "14 Get Students in Course"
+GET_STUDENTS_RESPONSE=$(curl -s -X GET "$BASE_URL/courses/$COURSE_ID/students" \
+    -H "Authorization: Bearer $ADMIN_TOKEN")
+echo "Get students in course response:"
+echo "$GET_STUDENTS_RESPONSE"
 echo
 
-# # 15. Get students in course
-# print_section "15 Get Students in Course"
-# GET_STUDENTS_RESPONSE=$(curl -s -X GET "$BASE_URL/courses/$COURSE_ID/students" \
-#     -H "Authorization: Bearer $ADMIN_TOKEN")
-# echo "Get students in course response:"
-# echo "$GET_STUDENTS_RESPONSE"
-# echo
-
-# 16. Create Assignment
-print_section "16 Create Assignment"
+# 15. Create Assignment
+print_section "15 Create Assignment"
 CREATE_ASSIGNMENT_RESPONSE=$(curl -s -X POST "$BASE_URL/assignments" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
@@ -193,8 +182,8 @@ echo "$CREATE_ASSIGNMENT_RESPONSE"
 echo "Assignment ID: $ASSIGNMENT_ID"
 echo
 
-# 17. Get assignment by ID
-print_section "17 Get Assignment By ID"
+# 16. Get assignment by ID
+print_section "16 Get Assignment By ID"
 GET_ASSIGNMENT_RESPONSE=$(curl -s -X GET "$BASE_URL/assignments/$ASSIGNMENT_ID" \
   -H "Authorization: Bearer $ADMIN_TOKEN")
 
@@ -202,8 +191,8 @@ echo "Get assignment by ID response:"
 echo "$GET_ASSIGNMENT_RESPONSE"
 echo
 
-# 18. Get all assignments for course (paginated)
-print_section "18 Get All Assignments For Course (Paginated)"
+# 17. Get all assignments for course (paginated)
+print_section "17 Get All Assignments For Course (Paginated)"
 GET_COURSE_ASSIGNMENTS_RESPONSE=$(curl -s -X GET "$BASE_URL/courses/$COURSE_ID/assignments?page=1" \
   -H "Authorization: Bearer $ADMIN_TOKEN")
 
@@ -211,8 +200,8 @@ echo "Get all assignments for course response:"
 echo "$GET_COURSE_ASSIGNMENTS_RESPONSE"
 echo
 
-# 19. Update assignment
-print_section "19 Update Assignment"
+# 18. Update assignment
+print_section "18 Update Assignment"
 UPDATE_ASSIGNMENT_RESPONSE=$(curl -s -X PATCH "$BASE_URL/assignments/$ASSIGNMENT_ID" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
@@ -222,8 +211,8 @@ echo "Update assignment response:"
 echo "$UPDATE_ASSIGNMENT_RESPONSE"
 echo
 
-# 20. Get assignment by ID after update
-print_section "20 Get Assignment By ID After Update"
+# 19. Get assignment by ID after update
+print_section "19 Get Assignment By ID After Update"
 GET_ASSIGNMENT_UPDATED_RESPONSE=$(curl -s -X GET "$BASE_URL/assignments/$ASSIGNMENT_ID" \
   -H "Authorization: Bearer $ADMIN_TOKEN")
 
@@ -231,25 +220,36 @@ echo "Get assignment by ID after update response:"
 echo "$GET_ASSIGNMENT_UPDATED_RESPONSE"
 echo
 
-# 21. Create submission
-print_section "21 Create Submission"
-FILE_CONTENT=$(<testData/test.txt)
+# 20. Create submission
+print_section "20 Create Submission"
 CREATE_SUBMISSION_RESPONSE=$(curl -s -X POST "$BASE_URL/assignments/$ASSIGNMENT_ID/submissions" \
-  -H "Content-Type: application/json" \
   -H "Authorization: Bearer $STUDENT_TOKEN" \
-  -d "{\"file\":\"$FILE_CONTENT\"}")
+  -F "assignmentId=$ASSIGNMENT_ID" \
+  -F "studentId=$STUDENT_ID" \
+  -F "timestamp=$(date --iso-8601=second)" \
+  -F "file=@./testData/test.txt")
 
+SUBMISSION_ID=$(echo "$CREATE_SUBMISSION_RESPONSE" | jq -r '.id')
 echo "Create submission response:"
 echo "$CREATE_SUBMISSION_RESPONSE"
 echo
 
-# 22. Get submissions for assignment (paginated)
-print_section "22 Get Submissions For Assignment (Paginated)"
+# 21. Get submissions for assignment (paginated)
+print_section "21 Get Submissions For Assignment (Paginated)"
 GET_SUBMISSIONS_RESPONSE=$(curl -s -X GET "$BASE_URL/assignments/$ASSIGNMENT_ID/submissions?page=1" \
   -H "Authorization: Bearer $ADMIN_TOKEN")
 
 echo "Get submissions for assignment response:"
 echo "$GET_SUBMISSIONS_RESPONSE"
+echo
+
+# 22. Download submissions for assignment
+print_section "22 Get Submissions For Assignment (Paginated)"
+DOWNLOAD_SUBMISSION_RESPONSE=$(curl -s -X GET "$BASE_URL/assignments/$ASSIGNMENT_ID/submissions/$SUBMISSION_ID" \
+  -H "Authorization: Bearer $ADMIN_TOKEN")
+
+echo "Download submission for assignment response:"
+echo "$DOWNLOAD_SUBMISSION_RESPONSE"
 echo
 
 # 23. Delete assignment
@@ -268,16 +268,37 @@ GET_ASSIGNMENT_AFTER_DELETE_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X
 echo "Get assignment by ID after delete status: $GET_ASSIGNMENT_AFTER_DELETE_RESPONSE"
 echo
 
-# 25. Delete student (teardown)
-print_section "25 Delete Student"
+# 25. Delete submission (teardown)
+print_section "25 Remove Student"
+DELETE_SUBMISSION_RESPONSE=$(curl -s -X DELETE "$BASE_URL/assignments/$ASSIGNMENT_ID/submissions/$SUBMISSION_ID" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $ADMIN_TOKEN")
+
+echo "Delete submission response:"
+echo "$DELETE_SUBMISSION_RESPONSE"
+echo
+
+# 26. Remove a student from the course (teardown)
+print_section "26 Remove Student"
+REMOVE_RESPONSE=$(curl -s -X POST "$BASE_URL/courses/$COURSE_ID/students" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -d "{\"add\": [], \"remove\": [\"$STUDENT_ID\"]}")
+
+echo "Remove student response:"
+echo "$REMOVE_RESPONSE"
+echo
+
+# 27. Delete student (teardown)
+print_section "27 Delete Student"
 DELETE_STUDENT_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE "$BASE_URL/users/$STUDENT_ID" \
   -H "Authorization: Bearer $ADMIN_TOKEN")
 
 echo "Delete student status: $DELETE_STUDENT_RESPONSE"
 echo
 
-# 26. Delete course (teardown)
-print_section "26 Delete Course"
+# 28. Delete course (teardown)
+print_section "28 Delete Course"
 DELETE_COURSE_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE "$BASE_URL/courses/$COURSE_ID" \
   -H "Authorization: Bearer $ADMIN_TOKEN")
 
