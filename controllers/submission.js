@@ -61,7 +61,7 @@ const getSubmissions = async (req, res, next) => {
     const pagedSubmissions = paginate(submissions, page, pageSize);
 
     if (pagedSubmissions.length > 0) {
-        return res.json(pagedSubmissions);
+        return res.json({ submissions: pagedSubmissions });
     } else {
         next();
     }
